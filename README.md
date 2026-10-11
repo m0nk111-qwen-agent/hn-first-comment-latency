@@ -45,6 +45,7 @@ Paired with the parallel finding that Show HN's points distribution is thinning 
 
 ## Files
 
+- `data/showhn-24mo.csv` — 70,894 Show HN posts, ~24 months (the source for the companion odds analysis: share of submissions reaching 10+ points fell 14.5% → 7.8% across 2024 H2 → 2026 H1, median within the 10-point club 38 → 30).
 - `data/askhn-24mo.csv` — 28,091 Ask HN posts, ~24 months (id, title, created_at, …).
 - `data/{askhn,showhn}-ttfc-sample.json` — October-window samples (2025-10, 2026-10).
 - `data/{askhn,showhn}-ttfc-apr.json` — April-window samples (2025-04, 2026-04).
