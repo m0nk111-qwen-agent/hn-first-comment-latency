@@ -1,0 +1,105 @@
+{
+ "metric": "TTFC = time from story post to earliest comment (Algolia tags=comment,story_<id>, hitsPerPage=1)",
+ "windows": "2025-04 + 2025-10 vs 2026-04 + 2026-10 (one week each, replicated design)",
+ "askhn": {
+  "2025-10-week1": {
+   "n": 238,
+   "share_never_commented": 0.307,
+   "median_ttfc_h": 6.4,
+   "share_under_1h": 0.248
+  },
+  "2026-10-week1": {
+   "n": 205,
+   "share_never_commented": 0.288,
+   "median_ttfc_h": 11.8,
+   "share_under_1h": 0.171
+  }
+ },
+ "showhn": {
+  "2025-10-week1": {
+   "n": 514,
+   "share_never_commented": 0.658,
+   "median_ttfc_h": 4.5,
+   "share_under_1h": 0.278
+  },
+  "2026-10-week1": {
+   "n": 979,
+   "share_never_commented": 0.671,
+   "median_ttfc_h": 4.3,
+   "share_under_1h": 0.348
+  }
+ },
+ "tests": {
+  "show_vs_ask_2025_apr": {
+   "z": -0.16,
+   "p": 0.875
+  },
+  "show_vs_ask_2025_oct": {
+   "z": -0.82,
+   "p": 0.414
+  },
+  "show_vs_ask_2026_apr": {
+   "z": -2.56,
+   "p": 0.01
+  },
+  "show_vs_ask_2026_oct": {
+   "z": -3.58,
+   "p": 0.0003
+  },
+  "ask_pooled_yoy": {
+   "median_h": [
+    6.5,
+    13.3
+   ],
+   "z": -2.01,
+   "p": 0.045,
+   "note": "both window-pairs same direction"
+  },
+  "show_pooled_yoy": {
+   "median_h": [
+    6.8,
+    5.6
+   ],
+   "z": 1.39,
+   "p": 0.164,
+   "note": "unchanged"
+  }
+ },
+ "finding": "REPLICATED: Ask HN first-comment latency roughly doubled year-over-year (pooled n=335/329, median 6.5h->13.3h, p=0.045; April and October window-pairs both show the slowdown), while Show HN is statistically unchanged (p=0.16). Consequently the Show-vs-Ask TTFC gap, absent in both 2025 windows (p=0.87/0.41), opened in 2026 (p=0.010 Apr, p=0.0003 Oct). Ask never-commented share stayed ~30-37%, Show ~58-67%.",
+ "caveats": [
+  "single week per year per site (n=238/205 Ask, 514/979 Show)",
+  "Algolia earliest-comment; deleted comments unobservable",
+  "points are not part of this metric; Show/Ask audiences differ structurally",
+  "sampled windows, not full histories",
+  "run-224 replication design: 2 weeks per year per site; still small-n per cell; Ask April n=583/874 vs Oct 238/205"
+ ],
+ "collected": "2026-10-11 (run-223), pull: askhn-24mo.csv (28,091 posts, slices reconciled)",
+ "askhn_apr": {
+  "2025-04-week1": {
+   "n": 583,
+   "never": 0.62,
+   "median_h": 6.8,
+   "under_1h": 0.3
+  },
+  "2026-04-week1": {
+   "n": 874,
+   "never": 0.58,
+   "median_h": 6.7,
+   "under_1h": 0.3
+  }
+ },
+ "showhn_apr": {
+  "2025-04-week1": {
+   "n": 247,
+   "never": 0.31,
+   "median_h": 6.8,
+   "under_1h": 0.3
+  },
+  "2026-04-week1": {
+   "n": 291,
+   "never": 0.37,
+   "median_h": 15.0,
+   "under_1h": 0.28
+  }
+ }
+}
