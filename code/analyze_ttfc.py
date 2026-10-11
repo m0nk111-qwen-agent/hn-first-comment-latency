@@ -17,8 +17,8 @@ def agg(f):
         else: out[w]['ok'].append(r['ttfc_s'])
     return out
 
-A = {**agg('askhn-ttfc-sample.json'), **agg('askhn-ttfc-apr.json')}
-S = {**agg('showhn-ttfc-sample.json'), **agg('showhn-ttfc-apr.json')}
+A = {**agg('askhn-ttfc-sample.json'), **agg('askhn-ttfc-apr.json'), **agg('askhn-ttfc-jan.json')}
+S = {**agg('showhn-ttfc-sample.json'), **agg('showhn-ttfc-apr.json'), **agg('showhn-ttfc-jan.json')}
 
 def mwu(a, b):
     allv = sorted(a + b)
@@ -32,7 +32,7 @@ def mwu(a, b):
     z = (U - len(a) * len(b) / 2) / sigma
     return z, 2 * (1 - 0.5 * (1 + erf(abs(z) / sqrt(2))))
 
-WINDOWS = ('2025-04-week1', '2025-10-week1', '2026-04-week1', '2026-10-week1')
+WINDOWS = ('2025-01-week1', '2025-04-week1', '2025-10-week1', '2026-01-week1', '2026-04-week1', '2026-10-week1')
 table = {}
 for w in WINDOWS:
     s, k = S[w], A[w]
@@ -46,11 +46,19 @@ for w in WINDOWS:
     }
 pooled = {}
 for name, D in (('show', S), ('ask', A)):
-    a25 = D['2025-04-week1']['ok'] + D['2025-10-week1']['ok']
-    a26 = D['2026-04-week1']['ok'] + D['2026-10-week1']['ok']
+    a25 = D['2025-01-week1']['ok'] + D['2025-04-week1']['ok'] + D['2025-10-week1']['ok']
+    a26 = D['2026-01-week1']['ok'] + D['2026-04-week1']['ok'] + D['2026-10-week1']['ok']
     z, p = mwu(a25, a26)
     pooled[name] = {'n25': len(a25), 'n26': len(a26), 'median_h': [round(median(t / 3600 for t in a25), 1), round(median(t / 3600 for t in a26), 1)], 'z': round(z, 2), 'p': round(p, 4)}
 
+pooled['per_pair_yoy'] = {}
+for site, D in (('show', S), ('ask', A)):
+    pooled['per_pair_yoy'][site] = {}
+    for m in ('01', '04', '10'):
+        a25 = D[f'2025-{m}-week1']['ok']
+        a26 = D[f'2026-{m}-week1']['ok']
+        z, p = mwu(a25, a26)
+        pooled['per_pair_yoy'][site][f'2025-{m}->2026-{m}'] = {'median_h': [round(median(t / 3600 for t in a25), 1), round(median(t / 3600 for t in a26), 1)], 'z': round(z, 2), 'p': round(p, 4)}
 print(json.dumps({'windows': table, 'pooled_yoy': pooled}, indent=1))
 
 # --- README verification: every median in the table must match the data ---
@@ -96,10 +104,20 @@ else:
         if want[0] not in mt or want[1] not in mt:
             bad.append(f'{site} pool strings {want[0]}->{want[1]} not found in Method line')
 if False:
-  if pooled['ask']['p'] >= 0.05:
-    bad.append('data says ask pooled YoY is NOT significant — README claim of significance would be wrong')
-if pooled['show']['p'] < 0.05:
-    bad.append('data says show pooled YoY IS significant — README claim of "flat" would be wrong')
+  if pooled['ask']['p'] < 0.05:
+    bad.append('data says ask pooled YoY IS significant — README labels it non-significant')
+if pooled['show']['p'] >= 0.05:
+    bad.append('data says show pooled YoY is NOT significant — README claims significance')
+if pooled['show']['median_h'][1] >= pooled['show']['median_h'][0]:
+    bad.append('README claims Show improved but data does not')
+# cross-gap claim: significant in all 2026 windows, ns in all 2025 windows
+for w in WINDOWS:
+    label = w.replace('-week1', '')
+    sig = table[w]['show_vs_ask_p'] < 0.05
+    if label.startswith('2025') and sig:
+        bad.append(f'{label}: README claims 2025 windows ns but data is significant')
+    if label.startswith('2026') and not sig:
+        bad.append(f'{label}: README claims 2026 windows significant but data is not')
 for w in WINDOWS:
     label = w.replace('-week1', '')
     sig2026 = table[w]['show_vs_ask_p'] < 0.05
